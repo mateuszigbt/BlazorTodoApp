@@ -4,41 +4,53 @@
 @using BlazorTodoApp.Client.Services
 @using BlazorTodoApp.Shared
 
-<div class="todo-wrapper">
-    <h1>Lista Zadań</h1>
-
-    <div class="adding-group">
-        <input @bind="newTitle" class="form-control" placeholder="Nowe zadanie">
-        <button class="btn btn-primary" @onclick="AddTodo">Dodaj</button>
-
-        
+@if (isLoading)
+{
+    <div class="loading-spinner d-flex justify-content-center align-items-center" style="height: 200px;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
     </div>
+}
+else
+{
+    <div class="todo-wrapper">
+        <h1>Lista Zadań</h1>
 
-    <ul>
-        @foreach (var item in todos)
-        {
-            <li class="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
-                <div class="details">
-                    <input type="checkbox" checked="@item.IsCompleted" @onchange="(e) => OnCheckboxChanged(e, item)" />
-                    @item.Title
-                </div>
-                <div class="btns">
-                    <button class="btn btn-sm btn-danger" @onclick="() => DeleteTodoItem(item.Id)">Usuń</button>
-                    <button class="btn btn-sm btn-warning">Edutuj</button>
-                </div>
-            </li>
-        }
-    </ul>
-</div>
+        <div class="adding-group">
+            <input @bind="newTitle" class="form-control" placeholder="Nowe zadanie">
+            <button class="btn btn-primary" @onclick="AddTodo">Dodaj</button>
+        </div>
+
+        <ul>
+            @foreach (var item in todos)
+            {
+                <li class="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
+                    <div class="details">
+                        <input type="checkbox" checked="@item.IsCompleted" @onchange="(e) => OnCheckboxChanged(e, item)" />
+                        @item.Title
+                    </div>
+                    <div class="btns">
+                        <button class="btn btn-sm btn-danger" @onclick="() => DeleteTodoItem(item.Id)">Usuń</button>
+                        <button class="btn btn-sm btn-warning">Edytuj</button>
+                    </div>
+                </li>
+            }
+        </ul>
+    </div>
+}
 
 @code {
     private List<TodoItem> todos = new();
     private string newTitle = "";
     private string whitchButton = "";
+    private bool isLoading = true;
 
     protected override async Task OnInitializedAsync()
     {
+        isLoading = true;
         todos = await TodoService.GetAllTodoItemsAsync();
+        isLoading = false;
     }
 
     private async Task AddTodo()
