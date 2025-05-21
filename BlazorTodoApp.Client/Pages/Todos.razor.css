@@ -1,0 +1,27 @@
+﻿.todo-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.adding-group {
+    display: flex;
+    width: 50%;
+    gap: 10px;
+}
+
+.btn {
+    width: 100px;
+}
+
+.btns {
+    display: flex;
+    gap: 10px;
+}
+
+ul {
+    width: 100%;
+}
+

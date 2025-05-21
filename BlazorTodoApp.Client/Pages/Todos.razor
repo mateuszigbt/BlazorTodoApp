@@ -1,0 +1,78 @@
+﻿@page "/todo"
+@inject TodoService TodoService
+@inject IJSRuntime JS
+@using BlazorTodoApp.Client.Services
+@using BlazorTodoApp.Shared
+
+<div class="todo-wrapper">
+    <h1>Lista Zadań</h1>
+
+    <div class="adding-group">
+        <input @bind="newTitle" class="form-control" placeholder="Nowe zadanie">
+        <button class="btn btn-primary" @onclick="AddTodo">Dodaj</button>
+
+        
+    </div>
+
+    <ul>
+        @foreach (var item in todos)
+        {
+            <li class="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
+                <div class="details">
+                    <input type="checkbox" checked="@item.IsCompleted" @onchange="(e) => OnCheckboxChanged(e, item)" />
+                    @item.Title
+                </div>
+                <div class="btns">
+                    <button class="btn btn-sm btn-danger" @onclick="() => DeleteTodoItem(item.Id)">Usuń</button>
+                    <button class="btn btn-sm btn-warning">Edutuj</button>
+                </div>
+            </li>
+        }
+    </ul>
+</div>
+
+@code {
+    private List<TodoItem> todos = new();
+    private string newTitle = "";
+    private string whitchButton = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        todos = await TodoService.GetAllTodoItemsAsync();
+    }
+
+    private async Task AddTodo()
+    {
+        var newItem = new TodoItem { Title = newTitle };
+        await TodoService.AddTodoItemAsync(newItem);
+        todos = await TodoService.GetAllTodoItemsAsync();
+        whitchButton = "add";
+        await ShowSuccessToast();
+        newTitle = "";
+    }
+
+    private async Task UpdateTodoItem(TodoItem item)
+    {
+        await TodoService.UpdateTodoItemAsync(item);
+    }
+
+    private async Task OnCheckboxChanged(ChangeEventArgs e, TodoItem item)
+    {
+        item.IsCompleted = (bool)e.Value!;
+        await TodoService.UpdateTodoItemAsync(item);
+    }
+
+    private async Task DeleteTodoItem(int id)
+    {
+        await TodoService.DeleteTodoItemAsync(id);
+        todos = await TodoService.GetAllTodoItemsAsync();
+        whitchButton = "delete";
+        await ShowSuccessToast();
+        newTitle = "";
+    }
+
+    private async Task ShowSuccessToast()
+    {
+        await JS.InvokeVoidAsync("showToast", whitchButton);
+    }
+}
